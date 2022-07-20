@@ -30,7 +30,18 @@ input_modes = {
 states = {
     0: 'undefined',
     1: 'idle',
+    3: 'calibrate',
     8: 'loop',
+}
+
+motor_errors = {
+    0: 'None',
+    1: 'PHASE_RESISTANCE_OUT_OF_RANGE',
+    2: 'PHASE_INDUCTANCE_OUT_OF_RANGE',
+    4: 'ADC_FAILED',
+    8: 'DRV_FAULT',
+    16: 'CONTROL_DEADLINE_MISSED',
+    32: 'NOT_IMPLEMENTED_MOTOR_TYPE',
 }
 
 ui.markdown('## ODrive GUI - Matt\'s hacked version')
@@ -44,7 +55,7 @@ with ui.row().classes('items-center'):
     ui.timer(1.0, lambda: voltage.set_text(f'{odrv.vbus_voltage:.2f} V') or False)
     ui.button(on_click=lambda: odrv.save_configuration()).props('icon=save flat round').tooltip('Save configuration')
     ui.button(on_click=lambda: dump_errors(odrv)).props('icon=bug_report flat round').tooltip('Dump errors')
-    ui.button(on_click=lambda: odrv.axis1.clear_errors()).props('icon=report_off flat round').tooltip('Clear errors')
+    ui.button(on_click=lambda: odrv.axis1.clear_errors()).props('icon=remove_circle_outline flat round').tooltip('Clear errors')
 
 
 def axis_column(a: int, axis: Any):
@@ -53,6 +64,10 @@ def axis_column(a: int, axis: Any):
     power = ui.label()
     ui.timer(0.1, lambda: power.set_text(
         f'{axis.motor.current_control.Iq_measured * axis.motor.current_control.v_current_control_integral_q:.1f} W') or False)
+
+    with ui.row():
+        motor_error = ui.label()
+        ui.timer(1.0, lambda: motor_error.set_text(f'Motor error: {motor_errors[axis.motor.error]}') or False)
 
     ctr_cfg = axis.controller.config
     mtr_cfg = axis.motor.config
