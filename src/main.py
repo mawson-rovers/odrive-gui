@@ -33,7 +33,7 @@ states = {
     8: 'loop',
 }
 
-ui.markdown('## ODrive GUI')
+ui.markdown('## ODrive GUI - Matt\'s hacked version')
 
 with ui.row().classes('items-center'):
     ui.label(f'SN {hex(odrv.serial_number).removeprefix("0x").upper()}')
@@ -43,7 +43,8 @@ with ui.row().classes('items-center'):
     voltage = ui.label()
     ui.timer(1.0, lambda: voltage.set_text(f'{odrv.vbus_voltage:.2f} V') or False)
     ui.button(on_click=lambda: odrv.save_configuration()).props('icon=save flat round').tooltip('Save configuration')
-    ui.button(on_click=lambda: dump_errors(odrv, True)).props('icon=bug_report flat round').tooltip('Dump errors')
+    ui.button(on_click=lambda: dump_errors(odrv)).props('icon=bug_report flat round').tooltip('Dump errors')
+    ui.button(on_click=lambda: odrv.axis1.clear_errors()).props('icon=report_off flat round').tooltip('Clear errors')
 
 
 def axis_column(a: int, axis: Any):
@@ -184,8 +185,7 @@ def axis_column(a: int, axis: Any):
 
 
 with ui.row():
-    for a, axis in enumerate([odrv.axis0, odrv.axis1]):
-        with ui.card(), ui.column():
-            axis_column(a, axis)
+    with ui.card(), ui.column():
+        axis_column(1, odrv.axis1)
 
 ui.run(title='ODrive Motor Tuning')
